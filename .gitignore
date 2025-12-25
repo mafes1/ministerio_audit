@@ -1,0 +1,31 @@
+# Secrets
+secrets/
+
+# Mail data and runs
+runs/
+data/raw/maildir/
+data/interim/
+data/processed/
+
+# Logs and temp
+*.log
+*.tmp
+*~
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+
+.env
+.envrc
+
+data/raw/cv/
+*.egg-info*
+admin/
+*.pdf
+*.odt
+*.png
