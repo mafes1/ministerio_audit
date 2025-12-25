@@ -1,3 +1,0 @@
-export PYTHONBREAKPOINT=ipdb.set_trace
-export MU_HOME="$PROJECT_ROOT/runs/mail/mu"
-MAILDIR="$PROJECT_ROOT/data/raw/maildir"
