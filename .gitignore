@@ -29,3 +29,4 @@ admin/
 *.pdf
 *.odt
 *.png
+/.dir-locals.el
