@@ -1,0 +1,71 @@
+offer_id: mozo0
+alias: sorli
+url: https://www.infojobs.net/barcelona/preparador-pedidos-mercabarna-lunes-viernes/of-i4a95a578d7482bb7b89d67c64ec26c?applicationOrigin=search-new%7Celement%7E57818912314&searchId=57818912314&page=2&sortBy=RELEVANCE
+fieldsets:
+- index: 1
+  question: 1. ¿Dispones del diploma del curso teórico-práctico de carretillas elevadoras
+    en vigor?
+  inputs:
+  - type: radio
+    id: preg_57690711560
+    name: preg_57690711558
+    label: SI
+- index: 2
+  question: '2. Disponibilidad de incorporación:'
+  inputs:
+  - type: radio
+    id: preg_57690711566
+    name: preg_57690711564
+    label: Inmediata
+- index: 3
+  question: 3. ¿Cuál es tu epxeriencia como preparador/a de pedidos?
+  inputs:
+  - type: radio
+    id: preg_57690711576
+    name: preg_57690711570
+    label: Más de 2 años
+- index: 4
+  question: 4. ¿Has trabajado picking por voz?
+  inputs:
+  - type: radio
+    id: preg_57690711582
+    name: preg_57690711580
+    label: SI
+- index: 5
+  question: 5. ¿Tienes vehiculo propio para acceder al centro?
+  inputs:
+  - type: radio
+    id: preg_57690711588
+    name: preg_57690711586
+    label: SI
+- index: 6
+  question: 6. ¿En que turno tienes preferencia por trabajar?
+  inputs:
+  - type: radio
+    id: preg_57690711600
+    name: preg_57690711592
+    label: Indiferente
+- index: 7
+  question: 7. Expón tu rango salarial
+  inputs:
+  - type: textarea
+    id: textarea-kq-57690711556
+    name: pregunta_abierta_57690711556
+    label: ''
+    cv_values:
+      cv01: Entre 14.000 y 20.000 € brutos al año, negociable según funciones.
+      cv02: Rango salarial entre 14.000 y 20.000 € brutos/año, a valorar.
+      cv03: Entre 14.000 y 20.000 € brutos anuales, con flexibilidad.
+      cv04: Aproximadamente 14.000-20.000 € brutos al año, negociable.
+      cv05: Rango de 14000 a 20000 € brutos anuales, abierto a conversar.
+      cv06: Entre 14.000 y 20.000 € brutos/año, según condiciones.
+      cv07: 14.000-20.000 € brutos al año, orientativo y negociable.
+      cv08: Entre 14000 y 20000 € brutos anuales, en función del puesto.
+      cv09: Rango 14.000 a 20.000 € brutos al año, con margen.
+      cv10: Entre 14.000 y 20.000 € brutos/año, a concretar en entrevista.
+      cv11: 14.000-20.000 € brutos anuales, con posibilidad de ajuste.
+      cv12: Rango salarial 14000-20000 € brutos al año, negociable.
+      cv13: Entre 14.000 y 20.000 € brutos/año, pendiente de acordar.
+      cv14: 14.000 a 20.000 € brutos anuales, con flexibilidad.
+      cv15: Entre 14000 y 20000 € brutos al año, abierto a negociación.
+      cv16: Rango de 14.000-20.000 € brutos/año, según responsabilidades.

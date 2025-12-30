@@ -1,0 +1,28 @@
+offer_id: admin0
+alias: mutuam
+url: https://www.infojobs.net/barcelona/auxiliar-facturacio-amb-treball-2-tardes/of-iec0762065645e6904a9068da0c7b32?applicationOrigin=search-new%7Celement%7E57816424956&searchId=57816424956&page=1&sortBy=RELEVANCE
+fieldsets:
+- index: 1
+  question: 1. ¿Quina es la teva disponibilidad d'incorporació?
+  inputs:
+  - type: textarea
+    id: textarea-kq-57795235510
+    name: pregunta_abierta_57795235510
+    label: ''
+    cv_values:
+      cv01: Disponibilitat immediata.
+      cv02: Puc incorporar-me de manera immediata.
+      cv03: Incorporació immediata.
+      cv04: Puc començar de seguida.
+      cv05: Disponibilitat d'incorporació immediata.
+      cv06: Puc començar immediatament.
+      cv07: Disponibilitat immediata per incorporar-me.
+      cv08: Em puc incorporar de seguida.
+      cv09: Disponibilitat total i immediata.
+      cv10: Puc iniciar ara mateix.
+      cv11: Incorporació immediata, sense preavís.
+      cv12: Puc començar avui mateix si cal.
+      cv13: Incorporació immediata i flexible.
+      cv14: Puc incorporar-me ja.
+      cv15: Disponibilitat immediata per començar.
+      cv16: Puc iniciar l'activitat de forma immediata.

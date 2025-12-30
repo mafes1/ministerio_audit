@@ -18,6 +18,9 @@ from selenium.common.exceptions import TimeoutException
 from time import sleep
 from bs4 import BeautifulSoup
 from ministerio_audit.config import INFOJOBS_LOGIN
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_offer_elements(driver, wait):
@@ -30,6 +33,7 @@ def get_offer_elements(driver, wait):
 
 def get_offer_details(driver, wait):
     data = {}
+    logger.debug("Waiting for headers of offer")
     header = wait.until(
         EC.visibility_of_element_located(
             (By.XPATH, "//article[@class='ij-Box ij-OfferDetailHeader']")
@@ -39,31 +43,38 @@ def get_offer_details(driver, wait):
         By.XPATH, "//div[contains(@class, 'OfferDetailHeader-title')]"
     ).find_element(By.TAG_NAME, "h1")
     data["title"] = title.text
+    logger.debug("Title located %s" % title.text)
 
     company_name = header.find_element(
         By.XPATH, "//div[contains(@class, 'companyLogo-companyName')]"
     )
     data["company_name"] = company_name.text
+    logger.debug("Company located %s" % company_name.text)
 
     try:
+        logger.debug("Trying locating company rating")
         rating_company = header.find_element(
-        By.XPATH, "//p[contains(@class, 'sui-MoleculeRating-label')]"
+            By.XPATH, "//p[contains(@class, 'sui-MoleculeRating-label')]"
         )
         data["rating_company"] = rating_company.text
+        logger.debug("Company rating not located")
     except:
         data["rating_company"] = ""
-
+        logger.debug("No company rating located")
+    
     details = driver.find_elements(
         By.XPATH,
         "//div[contains(@class, 'OfferDetailHeader-detailsList')]"
         "//div[contains(@class, 'OfferDetailHeader-detailsList-item')]",
     )
     data["details"] = [d.text for d in details]
+    logging.debug("Found %s details" % str(len(details)))
 
     publicada = header.find_element(
         By.XPATH, "//span[@data-testid='sincedate-tag']"
     )
     data["publicada"] = publicada.text
+    logging.debug("Found date %s" % publicada.text)
 
     soup = BeautifulSoup(driver.page_source, "lxml")
 
@@ -74,6 +85,7 @@ def get_offer_details(driver, wait):
         value = dd.get_text("\n", strip=True)
         req[key] = value
     data["requisitos"] = req
+    logging.debug("Found %s requirements" % str(len(req)))
 
     desc_block = soup.find("h3", string="Descripción")
     desc = ""
@@ -81,6 +93,7 @@ def get_offer_details(driver, wait):
         desc += el.get_text("\n") + "\n"
     desc = re.sub(r"(\n){2,}", r"\1\1", desc).strip()
     data["descripcion"] = desc
+    logging.debug("Found description block of %s chars" % str(len(desc)))
 
     cond = {}
     details_dl = desc_block.find_next("dl")
@@ -91,6 +104,7 @@ def get_offer_details(driver, wait):
         else:
             cond[key] = dd.get_text("\n", strip=True)
     data["condiciones"] = cond
+    logging.debug("Found %s conditions" % str(len(cond)))
 
     footer = soup.find(
         "h3",
@@ -98,27 +112,54 @@ def get_offer_details(driver, wait):
         and ("inscritos" in s.lower() or "vacantes" in s.lower()),
     )
     data["inscritos"] = footer.get_text(strip=True)
+    logger.debug("Found applicants")
+    logger.info("Ended first page scraping for offer")
     return data
 
 
-
-def get_form_text(driver, wait):
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//div[@data-test='apply-button-footer']/button")
+def parse_fieldsets(form_html):
+    soup = BeautifulSoup(form_html, "lxml")
+    form = soup.find("form") or soup
+    fieldsets = []
+    for idx, fieldset in enumerate(form.find_all("fieldset"), start=1):
+        legend = fieldset.find("legend")
+        question = legend.get_text(" ", strip=True) if legend else ""
+        inputs = []
+        for input_el in fieldset.find_all(["input", "textarea", "select"]):
+            tag_name = input_el.name
+            input_type = (
+                input_el.get("type", "text") if tag_name == "input" else tag_name
+            )
+            input_id = input_el.get("id", "")
+            input_name = input_el.get("name", "")
+            label_text = ""
+            if input_id:
+                label = fieldset.find("label", attrs={"for": input_id})
+                if label:
+                    label_text = label.get_text(" ", strip=True)
+            entry = {
+                "type": input_type,
+                "id": input_id,
+                "name": input_name,
+                "label": label_text,
+            }
+            if tag_name == "select":
+                entry["options"] = [
+                    {
+                        "value": opt.get("value", ""),
+                        "label": opt.get_text(" ", strip=True),
+                    }
+                    for opt in input_el.find_all("option")
+                ]
+            inputs.append(entry)
+        fieldsets.append(
+            {
+                "index": idx,
+                "question": question,
+                "inputs": inputs,
+            }
         )
-    ).click()
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.ID, "myForm")
-        )
-    )
-    soup = BeautifulSoup(driver.page_source, "lxml")
-    form = soup.find("form", id="myForm")
-    form = re.sub(r"(\n){2,}", r"\1\1", form.get_text("\n").strip())
-    driver.back()
-    return form
-
+    return fieldsets
 
 def _csv_safe_value(value):
     if isinstance(value, (dict, list)):

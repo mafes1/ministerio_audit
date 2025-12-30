@@ -1,0 +1,73 @@
+ofer_id: mozo1
+alias: piera
+url: https://www.infojobs.net/sant-just-desvern/mozo-almacen/of-id005bcd3d34916a68eeb1622c84ff5?applicationOrigin=search-new%7Celement%7E57802344742&searchId=57802344742&page=1&sortBy=RELEVANCE
+fieldsets:
+- index: 1
+  question: 1. ¿Tienes experiencia previa trabajando como mozo/a de almacén?
+  inputs:
+  - type: radio
+    id: preg_2086685
+    name: preg_580564
+    label: Sí, tengo al menos 1 año de experiencia como mozo/a de almacén.
+- index: 2
+  question: 2. ¿Cuál es tu nivel de catalán?
+  inputs:
+  - type: radio
+    id: preg_2086689
+    name: preg_580565
+    label: Nivel avanzado de catalán.
+- index: 3
+  question: 3. ¿Te consideras una persona dinámica y adaptable al entorno?
+  inputs:
+  - type: radio
+    id: preg_2086691
+    name: preg_580566
+    label: Sí, me considero una persona dinámica y adaptable al entorno.
+- index: 4
+  question: 4. ¿Te gusta trabajar en equipo?
+  inputs:
+  - type: radio
+    id: preg_2086693
+    name: preg_580567
+    label: Sí, me gusta trabajar en equipo.
+- index: 5
+  question: 5. ¿Estás disponible para trabajar de lunes a viernes de 9:00 a 13:30
+    y de 14:30 a 18:00 y los sábados de 9:30 a 13:30?
+  inputs:
+  - type: radio
+    id: preg_2086695
+    name: preg_580568
+    label: Sí, estoy disponible para ese horario.
+- index: 6
+  question: 6. -Estás de acuerdo con las condiciones laborales que ofrece el puesto
+    de trabajo?
+  inputs:
+  - type: radio
+    id: preg_2086696
+    name: preg_580569
+    label: Sí
+- index: 7
+  question: 7. Què creus que pots oferir-nos com a treballador si et contractem com
+    a mosso de magatzem a la nostra empresa?
+  inputs:
+  - type: textarea
+    id: textarea-kq-191812
+    name: pregunta_abierta_191812
+    label: ''
+    cv_values:
+      cv01: Soc ordenat i constant; m'agrada seguir procediments i evitar errors en la preparació de comandes.
+      cv02: Puc aportar bon ritme de treball i atenció al detall en la recepció i ubicació de material.
+      cv03: Tinc bona resistència física i em gestiono bé amb tasques repetitives i càrrega de caixes.
+      cv04: Sóc una persona responsable i puntual, amb bona actitud i ganes d'aprendre.
+      cv05: M'adapto ràpid als canvis i col·laboro amb l'equip per assolir objectius diaris.
+      cv06: Puc oferir constància i cura en l'inventari, minimitzant pèrdues i confusions.
+      cv07: Sóc polivalent i em moc bé entre picking, embalatge i expedicions.
+      cv08: Em preocupa la seguretat; respecto normes i mantinc l'espai de treball net i ordenat.
+      cv09: Tinc iniciativa per detectar incidències i comunicar-les abans que es facin grans.
+      cv10: Treballo bé sota pressió i mantinc el focus quan hi ha volum de feina.
+      cv11: M'agrada fer les coses ben fetes i revisar la qualitat abans d'enviar.
+      cv12: Puc aportar bona coordinació i comunicació amb companys i encarregats.
+      cv13: Sóc metòdic i faig servir el temps de manera eficient per complir terminis.
+      cv14: Tinc experiència amb PDA i etiquetatge, i m'hi adapto sense problema.
+      cv15: Em motiva la feina estable i posar-m'hi de valent des del primer dia.
+      cv16: Aporto actitud positiva i predisposició per ajudar en el que faci falta.

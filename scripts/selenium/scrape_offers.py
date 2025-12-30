@@ -43,7 +43,8 @@ password = secret["infojobs_password"]
 login_infojobs(driver, email, password)
 
 
-key = "Mozo/a de almacén"
+# key = "Mozo/a de almacén"
+key = "Auxiliar administrativo/a"
 loc = "Barcelona"
 
 
@@ -86,6 +87,7 @@ while True:
         driver.get(link)
         wait.until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
         data = get_offer_details(driver, wait)
+        data["link"] = link
         sleep(1)
         try:
             sleep(2)
