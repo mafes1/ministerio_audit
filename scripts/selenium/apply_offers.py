@@ -24,6 +24,7 @@ from ministerio_audit.config import (
 from ministerio_audit.selenium import login_infojobs
 from ministerio_audit.selenium.actions import (
     TIME_WAIT,
+    TIME_SLEEP,
     applybutton_offer_infojobs,
     load_offer_infojobs,
     logout_infojobs,
@@ -31,9 +32,10 @@ from ministerio_audit.selenium.actions import (
     populate_optional_infojobs,
 )
 
-SLEEP = 2
 TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_DIR = INTERIM_DIR / f"apply_infojobs_{TIMESTAMP}"
+OUTPUT_DIR = (
+    INTERIM_DIR / "infojobs_applications" / f"apply_infojobs_{TIMESTAMP}"
+)
 LOG_PATH = RUNS_DIR / "selenium" / f"apply_offers_{TIMESTAMP}.log"
 
 DEFAULT_OFFERS = ["mozo0", "mozo1", "admin0", "admin1"]
@@ -54,7 +56,6 @@ DEFAULT_CVS = [
     "cv14",
     "cv15",
     "cv16",
-    "cv17",
 ]
 
 logging.basicConfig(
@@ -143,7 +144,7 @@ def main():
             email = cv_data["infojobs_email"]
             password = cv_data["infojobs_password"]
             login_infojobs(driver, email, password)
-            sleep(SLEEP)
+            sleep(TIME_SLEEP)
 
             for offer_id, offer in offerdata.items():
                 alias = offer["alias"]
@@ -151,7 +152,20 @@ def main():
                 logger.info("Applying %s with %s", offer_id, cv_id)
 
                 data = {"cv_id": cv_id, "offer_id": offer_id, "alias": alias, "url": url}
+                data["start_time"] = datetime.now().strftime("%Y%m%d_%H%M%S")
                 data["offer_data"] = load_offer_infojobs(driver, url)
+                already_inscribed = bool(
+                    driver.find_elements(
+                        By.XPATH,
+                        "//*[contains(normalize-space(), 'Ya te has inscrito')]",
+                    )
+                )
+                data["already_inscribed"] = already_inscribed
+                if already_inscribed:
+                    logger.info("Skipping %s; already inscribed", offer_id)
+                    _save_run_data(OUTPUT_DIR, cv_id, offer_id, data)
+                    sleep(TIME_SLEEP)
+                    continue
                 data["form_text"], data["requirements"] = applybutton_offer_infojobs(driver)
                 wait.until(EC.visibility_of_element_located((By.ID, "myForm")))
 
@@ -171,11 +185,13 @@ def main():
                 submit = driver.find_element(By.ID, "botonEnviar")
                 submit.click()
                 wait.until(EC.staleness_of(submit))
+                data["end_time"] = datetime.now().strftime("%Y%m%d_%H%M%S")
                 _save_run_data(OUTPUT_DIR, cv_id, offer_id, data)
-                sleep(SLEEP)
-
+                logger.info("Finished application of offer %s for CV %s" % (offer_id, cv_id))
+                sleep(TIME_SLEEP)
+            logger.info("Applications finished for CV %s" % cv_id)
             logout_infojobs(driver)
-            sleep(SLEEP)
+            sleep(TIME_SLEEP)
     finally:
         driver.quit()
 

@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from time import sleep
 from bs4 import BeautifulSoup
 from ministerio_audit.config import INFOJOBS_LOGIN
@@ -198,3 +198,75 @@ def save_offers_data(offers_data, output_dir, prefix="infojobs_offers"):
             writer.writerow(row)
 
     return json_path, csv_path
+
+
+def scrape_application(driver, wait):
+    data = {}
+    job_title = wait.until(
+        EC.presence_of_element_located(
+            (By.XPATH, "//h2[@class='job-list-title']")
+        )
+    )
+    data["job_title"] = job_title.text
+    try:
+        title_link = job_title.find_element(By.TAG_NAME, "a")
+        data["offer_link"] = title_link.get_attribute("href")
+    except NoSuchElementException:
+        data["offer_link"] = job_title.get_attribute("href") or ""
+
+    try:
+        job_subtitle = driver.find_element(
+            By.XPATH, "//h3[@class='job-list-subtitle']"
+        )
+    except NoSuchElementException:
+        logger.info("No subtitle info found for %s", data["offer_link"])
+        job_subtitle = None
+
+    data["job_subtitle"] = job_subtitle.text if job_subtitle else None
+
+    job_subtitle_href = None
+    if job_subtitle:
+        try:
+            job_subtitle_href = job_subtitle.find_element(
+                By.XPATH, ".//a"
+            ).get_attribute("href")
+        except NoSuchElementException:
+            logger.info("No subtitle href info found for %s", data["offer_link"])
+    data["job_subtitle_href"] = job_subtitle_href
+
+    details = []
+    try:
+        details_ul = job_title.find_element(
+            By.XPATH, "following-sibling::ul[1]"
+        )
+        details = [
+            item.text.strip()
+            for item in details_ul.find_elements(By.TAG_NAME, "li")
+            if item.text.strip()
+        ]
+    except NoSuchElementException:
+        logger.info("No subtitle details list found for %s", data["offer_link"])
+
+    data["job_details"] = details
+
+    try:
+        next_div = job_title.find_element(
+            By.XPATH, "parent::div/following-sibling::div[1]"
+        ).get_attribute("innerText")
+    except NoSuchElementException:
+        logger.info("No next div found for %s", data["offer_link"])
+        next_div = ""
+
+    data["next_div"] = next_div
+
+    data["all_job_desc"] = driver.find_element(
+        By.XPATH, "//div[contains(@class, 'job-list')]"
+    ).get_attribute("innerText")
+
+    events = driver.find_elements(By.XPATH, "//li[starts-with(@id, 'event-')]")
+    data["events"] = []
+    for event in events:
+        text = event.find_element(By.CSS_SELECTOR, "p#event-text").text.strip()
+        timestamp = event.find_element(By.TAG_NAME, "time").text.strip()
+        data["events"].append({"text": text, "time": timestamp})
+    return data

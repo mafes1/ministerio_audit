@@ -12,14 +12,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from time import sleep
 from bs4 import BeautifulSoup
 from ministerio_audit.config import INFOJOBS_LOGIN, INFOJOBS_MAIN
 from .scrape import get_offer_details
 
 logger = logging.getLogger(__name__)
-TIME_WAIT = 10
+TIME_WAIT = 20
+TIME_SLEEP = 4
 
 def accept_cookies(driver, wait):
     try:
@@ -31,40 +32,62 @@ def accept_cookies(driver, wait):
         return False
 
 
-def login_infojobs(driver, email, password, SLEEP=1):
-    wait = WebDriverWait(driver, 10)
-    driver.get(INFOJOBS_MAIN)
-    # driver.get(INFOJOBS_LOGIN)
-    accept_cookies(driver, wait)
+def login_infojobs(driver, email, password, SLEEP=TIME_SLEEP, max_attempts=3):
+    wait = WebDriverWait(driver, TIME_WAIT)
+    last_error = None
+    for attempt in range(max_attempts):
+        try:
+            driver.get(INFOJOBS_MAIN)
+            # driver.get(INFOJOBS_LOGIN)
+            accept_cookies(driver, wait)
 
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.ID, "candidate_login")
-        )
-    ).click()
+            el = wait.until(
+                EC.visibility_of_element_located(
+                    (By.ID, "candidate_login")
+                )
+            )
+            el.click()
 
-    input_email = wait.until(
-        EC.visibility_of_element_located((By.NAME, "email"))
-    )
-    input_email.send_keys(Keys.CONTROL, "a")
-    input_email.send_keys(Keys.DELETE)
-    input_email.send_keys(email)
-    sleep(SLEEP)
-    wait.until(
-        EC.visibility_of_element_located((By.NAME, "password"))
-    ).send_keys(password)
-    sleep(SLEEP)
-    wait.until(
-        EC.element_to_be_clickable(
-            (By.XPATH,
-             "//button[@type='submit' and .//span[normalize-space()='Iniciar sesión']]")
-        )
-    ).click()
+            input_email = wait.until(
+                EC.visibility_of_element_located((By.NAME, "email"))
+            )
+            input_email.send_keys(Keys.CONTROL, "a")
+            input_email.send_keys(Keys.DELETE)
+            input_email.send_keys(email)
+            sleep(SLEEP)
+            wait.until(
+                EC.visibility_of_element_located((By.NAME, "password"))
+            ).send_keys(password)
+            sleep(SLEEP)
+            wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH,
+                     "//button[@type='submit' and .//span[normalize-space()='Iniciar sesión']]")
+                )
+            ).click()
+
+            # ensure the login actually completed
+            wait.until(
+                lambda d: d.find_elements(
+                    By.CSS_SELECTOR,
+                    "div[class='ij-HeaderDesktop-navbar-avatar']",
+                )
+                or d.find_elements(
+                    By.XPATH,
+                    "//a[contains(@class, 'trackingMainMenuMyApplication')]",
+                )
+            )
+            return el
+        except (TimeoutException, NoSuchElementException) as exc:
+            last_error = exc
+            logger.warning("Login attempt %s/%s failed, retrying.", attempt+1, max_attempts)
+            sleep(SLEEP)
+    raise last_error
     
 
 
 def logout_infojobs(driver):
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, TIME_WAIT)
     wait.until(
         EC.visibility_of_element_located(
             (By.CSS_SELECTOR, "div[class='ij-HeaderDesktop-navbar-avatar']"))
@@ -220,18 +243,34 @@ def populate_fieldsets_infojobs(driver, fieldsets, cv_id, offer_id=None):
 
 
 def populate_optional_infojobs(driver, cv_path, letter):
-    file_input = driver.find_element(By.XPATH, "//input[@type='file']")
-    file_input.send_keys(str(cv_path))
-
-    driver.find_element(By.ID, "opcionCarta_incluir").click()
+    trace = {"cv": None, "letter": None}
     wait = WebDriverWait(driver, TIME_WAIT)
-    wait.until(
-        EC.visibility_of_element_located(
-            (By.ID, "texto_carta_incluir")
+
+    try:
+        file_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@type='file']"))
         )
-    ).send_keys(letter)
-    trace = {
-        "cv": driver.find_element(By.XPATH, "//span[@class='ij-FilePreview-name']").text,
-        "letter": driver.find_element(By.ID, "opcionCarta_incluir").text
-    }
+        file_input.send_keys(str(cv_path))
+        trace["cv"] = str(cv_path)
+        try:
+            trace["cv"] = driver.find_element(
+                By.XPATH, "//span[@class='ij-FilePreview-name']"
+            ).text
+        except NoSuchElementException:
+            logger.info("CV preview element not available; using file path")
+    except TimeoutException:
+        logger.info("CV upload input not available")
+
+    try:
+        include_letter = driver.find_element(By.ID, "opcionCarta_incluir")
+        include_letter.click()
+        try:
+            wait.until(
+                EC.visibility_of_element_located((By.ID, "texto_carta_incluir"))
+            ).send_keys(letter)
+            trace["letter"] = letter
+        except TimeoutException:
+            logger.info("Letter textarea not available")
+    except NoSuchElementException:
+        logger.info("Letter option not available")
     return trace
